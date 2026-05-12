@@ -1,0 +1,53 @@
+{
+  "common": {
+    "skipToContent": "Skip to content",
+    "menu": "Menu",
+    "close": "Close",
+    "search": "Search",
+    "searchPlaceholder": "Search the site…",
+    "readMore": "Read more",
+    "download": "Download",
+    "backToList": "Back to list",
+    "publishedOn": "Published on",
+    "loading": "Loading…",
+    "notFoundTitle": "Page not found",
+    "notFoundText": "The requested page does not exist or has been moved.",
+    "languageName": "English",
+    "switchLanguage": "Français"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About FODECC",
+    "producers": "Producers' Desk",
+    "transparency": "Transparency & accountability",
+    "partners": "Technical and financial partners",
+    "news": "News",
+    "library": "Documents",
+    "contact": "Contact"
+  },
+  "home": {
+    "latestNews": "Latest news",
+    "keyFigures": "FODECC in figures",
+    "allNews": "All news"
+  },
+  "news": {
+    "indexTitle": "News",
+    "category": "Category",
+    "allCategories": "All categories",
+    "year": "Year",
+    "noResults": "No article matches your search."
+  },
+  "library": {
+    "indexTitle": "Transparency & accountability",
+    "type": "Document type",
+    "year": "Year",
+    "theme": "Theme",
+    "noResults": "No document found."
+  },
+  "footer": {
+    "siteMap": "Site map",
+    "legal": "Legal notice",
+    "accessibility": "Accessibility",
+    "rights": "All rights reserved"
+  }
+}

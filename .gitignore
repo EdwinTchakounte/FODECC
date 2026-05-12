@@ -1,0 +1,32 @@
+# Python / Django / Wagtail
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+*.sqlite3
+/backend/media/
+/backend/staticfiles/
+/backend/static_collected/
+
+# Node / Next.js
+node_modules/
+/frontend/.next/
+/frontend/out/
+/frontend/.turbo/
+npm-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Docker volumes (si montés localement)
+/pgdata/

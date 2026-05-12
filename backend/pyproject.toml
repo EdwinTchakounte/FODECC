@@ -1,0 +1,46 @@
+[project]
+name = "fodecc-backend"
+version = "0.1.0"
+description = "CMS headless Wagtail pour le site fodecc.cm (API consommée par le frontend Next.js)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "django>=5.1,<5.2",
+    "wagtail>=6.3,<6.4",
+    "psycopg[binary]>=3.1",
+    "dj-database-url>=2.2",
+    "gunicorn>=22.0",
+    "whitenoise>=6.7",
+    "pillow>=10.3",
+    "django-cors-headers>=4.4",
+    "wagtail-headless-preview>=0.8",
+    "wagtail-localize>=1.11",
+    "python-dotenv>=1.0",
+    "requests>=2.31",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8,<0.9",
+    "ipython>=8.30",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["**/migrations/**", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "B", "DJ", "UP"]
+# DJ008 : faux positif sur les sous-classes de `wagtail.models.Page` (qui définit déjà __str__).
+# DJ012 : ordre Meta/méthodes — purement cosmétique.
+ignore = ["DJ008", "DJ012"]
+
+[tool.ruff.lint.per-file-ignores]
+# Modules de settings : pattern `from .base import *` (étoile assumée).
+"config/settings/*.py" = ["F403", "F405"]
+# Blocs StreamField : noms de classes en CamelCase suffixés "Block" — convention Wagtail.
+"core/blocks.py" = ["N", "E501"]
+# Modèles : `verbose_name`/`help_text` en français → quelques lignes > 100 car. assumées.
+"*/models.py" = ["E501"]
+# Commandes de gestion : messages console multilignes.
+"core/management/commands/*.py" = ["E501"]

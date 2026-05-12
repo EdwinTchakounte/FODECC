@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Lien d'évitement (accessibilité WCAG) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: #000;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* Styles de base du contenu riche (RichText / RawHTML venant de Wagtail) */
+.rich-text {
+  line-height: 1.7;
+}
+.rich-text h2 { @apply text-2xl font-bold mt-8 mb-3; }
+.rich-text h3 { @apply text-xl font-semibold mt-6 mb-2; }
+.rich-text p { @apply my-4; }
+.rich-text ul { @apply list-disc pl-6 my-4; }
+.rich-text ol { @apply list-decimal pl-6 my-4; }
+.rich-text a { @apply text-cacao-700 underline; }
+.rich-text blockquote { @apply border-l-4 border-cacao-300 pl-4 italic my-6 text-gray-700; }
+.rich-text img { @apply my-6 rounded; }

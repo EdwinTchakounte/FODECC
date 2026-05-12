@@ -1,0 +1,53 @@
+{
+  "common": {
+    "skipToContent": "Aller au contenu",
+    "menu": "Menu",
+    "close": "Fermer",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher sur le site…",
+    "readMore": "Lire la suite",
+    "download": "Télécharger",
+    "backToList": "Retour à la liste",
+    "publishedOn": "Publié le",
+    "loading": "Chargement…",
+    "notFoundTitle": "Page introuvable",
+    "notFoundText": "La page demandée n'existe pas ou a été déplacée.",
+    "languageName": "Français",
+    "switchLanguage": "English"
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "Le FODECC",
+    "producers": "Guichet Producteurs",
+    "transparency": "Transparence et redevabilité",
+    "partners": "Partenaires techniques et financiers",
+    "news": "Actualités",
+    "library": "Documentation",
+    "contact": "Contact"
+  },
+  "home": {
+    "latestNews": "Dernières actualités",
+    "keyFigures": "Le FODECC en chiffres",
+    "allNews": "Toutes les actualités"
+  },
+  "news": {
+    "indexTitle": "Actualités",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "year": "Année",
+    "noResults": "Aucun article ne correspond à votre recherche."
+  },
+  "library": {
+    "indexTitle": "Transparence et redevabilité",
+    "type": "Type de document",
+    "year": "Année",
+    "theme": "Thématique",
+    "noResults": "Aucun document trouvé."
+  },
+  "footer": {
+    "siteMap": "Plan du site",
+    "legal": "Mentions légales",
+    "accessibility": "Accessibilité",
+    "rights": "Tous droits réservés"
+  }
+}
