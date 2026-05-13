@@ -54,7 +54,7 @@ export default async function SearchPage(props: {
       <Section tone="cream">
         {query ? (
           results.length ? (
-            <ul className="mx-auto max-w-3xl divide-y divide-cacao-100 overflow-hidden rounded-3xl bg-white shadow-card">
+            <ul className="mx-auto max-w-3xl divide-y divide-cacao-100 overflow-hidden rounded-lg bg-white shadow-card">
               {results.map((r) => (
                 <li key={r.id}>
                   <Link href={pathFromHtmlUrl(r.url)} className="block px-6 py-5 transition-colors hover:bg-sand/60">

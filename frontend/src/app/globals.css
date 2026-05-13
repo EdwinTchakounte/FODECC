@@ -78,16 +78,16 @@
     @apply list-decimal space-y-1.5 pl-6 marker:text-cacao-400;
   }
   .prose-fodecc blockquote {
-    @apply rounded-r-3xl border-l-4 border-gold-400 bg-sand px-6 py-5 font-display text-lg italic text-cacao-800;
+    @apply rounded-r-lg border-l-4 border-gold-400 bg-sand px-6 py-5 font-display text-lg italic text-cacao-800;
   }
   .prose-fodecc hr {
     @apply my-10 border-cacao-200;
   }
   .prose-fodecc img {
-    @apply my-8 rounded-[1.75rem] shadow-card;
+    @apply my-8 rounded-lg shadow-card;
   }
   .prose-fodecc table {
-    @apply w-full border-collapse overflow-hidden rounded-2xl text-sm shadow-card;
+    @apply w-full border-collapse overflow-hidden rounded-lg text-sm shadow-card;
   }
   .prose-fodecc th {
     @apply bg-cacao-900 px-4 py-3 text-left font-semibold text-cream;

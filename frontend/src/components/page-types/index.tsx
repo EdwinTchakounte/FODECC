@@ -9,10 +9,12 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import NewsCard from "@/components/NewsCard";
 import StreamField from "@/components/StreamField";
 import Hero from "@/components/home/Hero";
+import LogoMarquee from "@/components/home/LogoMarquee";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import CacaoDecor, { ToolsPattern } from "@/components/ui/CacaoDecor";
 import Counter from "@/components/ui/Counter";
-import { Blobs, DotGrid, Wave } from "@/components/ui/Decor";
+import { Blobs, DotGrid } from "@/components/ui/Decor";
 import Photo from "@/components/ui/Photo";
 import Reveal from "@/components/ui/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
@@ -25,6 +27,7 @@ import { listLibraryItems, listNews, listPages, mediaUrl, pathFromHtmlUrl } from
 // — remplaçables par des images uploadées dans le CMS.
 const PHOTO_ABOUT = "/img/about.jpg";
 const PHOTO_ADMIN = "/img/admin.jpg";
+const PHOTO_FIGURES = "/img/feature.jpg";
 
 /** L'API renvoie des URLs d'images relatives (`/media/...`) ; on les rend absolues. */
 function img(v: unknown): string | undefined {
@@ -81,9 +84,16 @@ const ArrowSm = () => (
 
 // ─── Accueil ─────────────────────────────────────────────────────────────────
 const AUDIENCES = [
-  { key: "producer", href: "/guichet-producteurs", icon: "M4 18v-1a6 6 0 0112 0v1 M10 3a3.5 3.5 0 100 7 3.5 3.5 0 000-7", tone: "bg-forest-700 text-cream" },
-  { key: "partner", href: "/transparence", icon: "M5 17h10M5 17V8l5-4 5 4v9 M8 17v-5h4v5", tone: "bg-cacao-900 text-cream" },
-  { key: "press", href: "/actualites", icon: "M4 5h12v10H4z M4 9h12 M7 12h6", tone: "bg-gold-400 text-cacao-950" },
+  { key: "producer", href: "/guichet-producteurs", icon: "M4 18v-1a6 6 0 0112 0v1 M10 3a3.5 3.5 0 100 7 3.5 3.5 0 000-7", tone: "bg-forest-700 text-cream", bar: "bg-forest-600" },
+  { key: "partner", href: "/transparence", icon: "M5 17h10M5 17V8l5-4 5 4v9 M8 17v-5h4v5", tone: "bg-cacao-900 text-cream", bar: "bg-cacao-700" },
+  { key: "press", href: "/actualites", icon: "M4 5h12v10H4z M4 9h12 M7 12h6", tone: "bg-gold-400 text-cacao-950", bar: "bg-gold-400" },
+] as const;
+
+// Trois leviers d'action (section « À propos »).
+const PILLARS = [
+  { key: "pillar1", icon: "M10 2v3M10 15v3M2 10h3M15 10h3M5 5l2 2M13 13l2 2M15 5l-2 2M7 13l-2 2 M10 7a3 3 0 100 6 3 3 0 000-6", tone: "bg-forest-700" },
+  { key: "pillar2", icon: "M4 18v-1a6 6 0 0112 0v1 M10 3a3.5 3.5 0 100 7 3.5 3.5 0 000-7", tone: "bg-cacao-800" },
+  { key: "pillar3", icon: "M3 17l4-5 3 3 4-6 3 4 M3 4v13h14", tone: "bg-gold-500" },
 ] as const;
 
 // Logos d'opérateurs / partenaires (servis depuis public/logos/, issus de fodecc.cm).
@@ -110,7 +120,6 @@ const FIGURES = [
 
 export async function HomePageView({ page }: { page: WagtailPage }) {
   const t = await getTranslations();
-  const fmt = await getFormatter();
   const locale = page.meta.locale;
   const heroImg = img(page.hero_image_url);
   const adminPhoto = img(page.admin_photo_url) || PHOTO_ADMIN;
@@ -136,8 +145,9 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
         scrollLabel={t("home.scroll")}
       />
 
-      {/* ── À propos / mission ──────────────────────────────────────────── */}
-      <Section id="apres-hero" tone="cream">
+      {/* ── À propos / mission + 3 leviers ──────────────────────────────── */}
+      <Section id="apres-hero" tone="cream" className="relative isolate overflow-hidden">
+        <ToolsPattern className="text-cacao-900" opacity={0.05} />
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <SectionHeading eyebrow={t("home.aboutEyebrow")} title={t("home.aboutTitle")} />
@@ -147,44 +157,57 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
             </div>
           </Reveal>
           <Reveal delay={120} className="relative">
-            <div className="absolute -right-6 -top-6 hidden h-40 w-40 rounded-[2.5rem] bg-gold-400/30 blur-2xl lg:block" aria-hidden />
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-soft">
+            <div className="absolute -right-5 -top-5 h-28 w-28 border-2 border-gold-400/50" aria-hidden />
+            <div className="absolute -bottom-5 -left-5 h-28 w-28 border-2 border-forest-400/40" aria-hidden />
+            <div className="relative aspect-[5/4] overflow-hidden rounded-lg shadow-soft">
               <Photo src={PHOTO_ABOUT} />
               <div className="absolute inset-0 bg-gradient-to-t from-cacao-950/25 to-transparent" />
             </div>
           </Reveal>
         </div>
+        <div className="mt-16 grid gap-6 border-t border-cacao-200/70 pt-12 sm:grid-cols-3">
+          {PILLARS.map((p, i) => (
+            <Reveal key={p.key} delay={i * 90}>
+              <div className="flex h-full gap-4">
+                <span className={cn("mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-md text-cream", p.tone)} aria-hidden>
+                  <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none"><path d={p.icon} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </span>
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-cacao-950">{t(`home.${p.key}Title`)}</h3>
+                  <p className="mt-1.5 text-[0.95rem] leading-relaxed text-cacao-900/75">{t(`home.${p.key}Text`)}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </Section>
 
       {/* ── Mot de l'Administrateur ─────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-cacao-950 text-cream">
-        <DotGrid />
-        <Blobs variant="dark" />
+        <ToolsPattern className="text-cream" opacity={0.05} />
         <div className="container-x py-20 sm:py-24">
           <div className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
             <Reveal className="order-2 lg:order-1">
               <div className="relative mx-auto max-w-sm">
-                <div className="absolute -left-5 -top-5 h-28 w-28 rounded-[2rem] border-2 border-gold-400/50" aria-hidden />
-                <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-soft">
+                <div className="absolute -left-4 -top-4 h-24 w-24 border-2 border-gold-400/50" aria-hidden />
+                <div className="absolute -bottom-4 -right-4 h-24 w-24 border-2 border-forest-400/40" aria-hidden />
+                <div className="relative aspect-[4/5] overflow-hidden rounded-lg shadow-soft">
                   <Photo src={adminPhoto} />
                 </div>
               </div>
             </Reveal>
             <Reveal delay={120} className="order-1 lg:order-2">
               <span className="eyebrow text-gold-300"><span className="h-px w-7 bg-current opacity-70" aria-hidden />{t("home.adminEyebrow")}</span>
-              <blockquote className="mt-5 font-display text-2xl font-medium leading-snug text-cream sm:text-3xl">
-                <span className="text-gold-300/70">«&nbsp;</span>
-                {adminQuote}
-                <span className="text-gold-300/70">&nbsp;»</span>
+              <blockquote className="mt-5 font-display text-2xl font-medium leading-snug text-balance text-cream sm:text-3xl">
+                <span className="text-gold-300/70">«&nbsp;</span>{adminQuote}<span className="text-gold-300/70">&nbsp;»</span>
               </blockquote>
               <div className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <p className="text-base font-semibold text-cream">{adminName}</p>
                 <p className="text-sm text-cream/65">{adminRole}</p>
               </div>
               <div className="mt-7">
-                <Link href={pathFromHtmlUrl(adminUrl)} className="group inline-flex items-center gap-2 rounded-full border border-cream/35 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-cream/10">
-                  {t("home.adminReadMore")}
-                  <ArrowSm />
+                <Link href={pathFromHtmlUrl(adminUrl)} className="group inline-flex items-center gap-2 rounded-md border border-cream/35 px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-cream/10">
+                  {t("home.adminReadMore")}<ArrowSm />
                 </Link>
               </div>
             </Reveal>
@@ -193,17 +216,18 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
       </section>
 
       {/* ── Parcours par audience ───────────────────────────────────────── */}
-      <Section tone="sand" className="relative isolate overflow-hidden">
-        <Blobs variant="forest" />
+      <Section tone="sand">
         <Reveal><SectionHeading eyebrow={t("home.audiencesEyebrow")} title={t("home.audiencesTitle")} /></Reveal>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-cacao-200 bg-cacao-200 md:grid-cols-3">
           {AUDIENCES.map((a, i) => (
             <Reveal key={a.key} delay={i * 90}>
-              <Link href={a.href} className="group flex h-full flex-col rounded-[1.75rem] bg-white p-8 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover">
-                <span className={cn("grid h-14 w-14 place-items-center rounded-2xl", a.tone)} aria-hidden>
-                  <svg viewBox="0 0 20 20" className="h-7 w-7" fill="none"><path d={a.icon} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              <Link href={a.href} className="group relative flex h-full flex-col bg-white p-8 transition-colors hover:bg-cream sm:p-9">
+                <span className={cn("absolute left-0 top-0 h-1 w-full", a.bar)} aria-hidden />
+                <span className="font-display text-5xl font-semibold text-cacao-100">{String(i + 1).padStart(2, "0")}</span>
+                <span className={cn("mt-4 grid h-12 w-12 place-items-center rounded-md text-cream", a.tone)} aria-hidden>
+                  <svg viewBox="0 0 20 20" className="h-6 w-6" fill="none"><path d={a.icon} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </span>
-                <h3 className="mt-6 font-display text-xl font-semibold text-cacao-950">{t(`home.${a.key}Card`)}</h3>
+                <h3 className="mt-5 font-display text-xl font-semibold text-cacao-950">{t(`home.${a.key}Card`)}</h3>
                 <p className="mt-2.5 text-cacao-900/75">{t(`home.${a.key}CardText`)}</p>
                 <span className="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest-700">{t(`home.${a.key}CardCta`)}<ArrowSm /></span>
               </Link>
@@ -212,29 +236,34 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
         </div>
       </Section>
 
-      {/* ── Chiffres clés ───────────────────────────────────────────────── */}
-      <section className="relative isolate overflow-hidden bg-forest-800 text-cream">
-        <DotGrid />
-        <div className="container-x py-16 sm:py-20">
-          <div className="grid gap-10 lg:grid-cols-[1fr_2fr] lg:items-center">
-            <Reveal><SectionHeading invert eyebrow={t("home.figuresEyebrow")} title={t("home.figuresTitle")} /></Reveal>
-            <Reveal delay={120}>
-              <dl className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-                {FIGURES.map((f) => (
-                  <div key={f.label}>
-                    <dt className="font-display text-[2.75rem] font-semibold leading-none text-gold-300 sm:text-5xl">
-                      <Counter value={f.value} />
-                    </dt>
-                    <dd className="mt-2 text-sm leading-snug text-cream/75">{f.label}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Reveal>
-          </div>
+      {/* ── FODECC en chiffres (sur photo, stats reliées) ───────────────── */}
+      <section className="relative isolate overflow-hidden bg-forest-900 text-cream">
+        <Photo src={PHOTO_FIGURES} className="absolute inset-0 -z-10 object-cover opacity-25" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-forest-900 via-forest-900/85 to-cacao-950/80" />
+        <DotGrid className="text-cream" />
+        <div className="container-x py-20 sm:py-24">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <SectionHeading invert align="center" eyebrow={t("home.figuresEyebrow")} title={t("home.figuresTitle")} />
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="relative mx-auto mt-14 grid max-w-5xl gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              {/* ligne qui relie les statistiques (desktop) */}
+              <div className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-2 hidden h-0.5 bg-gradient-to-r from-transparent via-gold-300/40 to-transparent lg:block" aria-hidden />
+              {FIGURES.map((f) => (
+                <div key={f.label} className="relative flex flex-col items-center text-center">
+                  <span className="relative z-10 mb-5 grid h-4 w-4 place-items-center rounded-full bg-gold-300 ring-4 ring-forest-900" aria-hidden />
+                  <dt className="font-display text-[clamp(2.4rem,4vw,3.25rem)] font-semibold leading-none text-gold-300">
+                    <Counter value={f.value} />
+                  </dt>
+                  <dd className="mt-3 max-w-[16ch] text-sm leading-snug text-cream/80">{f.label}</dd>
+                </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ── À la une ────────────────────────────────────────────────────── */}
+      {/* ── À la une (mise en page magazine) ────────────────────────────── */}
       {news.length > 0 ? (
         <Section tone="cream">
           <Reveal>
@@ -243,43 +272,48 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
               <Button href="/actualites" variant="ghost" size="sm" className="shrink-0">{t("home.allNews")}</Button>
             </div>
           </Reveal>
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          <div className="mt-10 grid gap-6 lg:grid-cols-5">
             {news[0] ? <Reveal className="lg:col-span-3"><NewsCard article={news[0]} locale={locale} featured /></Reveal> : null}
-            {news.slice(1, 4).map((a, i) => <Reveal key={a.id} delay={i * 80}><NewsCard article={a} locale={locale} /></Reveal>)}
+            {news[1] ? <Reveal delay={90} className="lg:col-span-2"><NewsCard article={news[1]} locale={locale} /></Reveal> : null}
           </div>
+          {news.length > 2 ? (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {news.slice(2, 5).map((a, i) => <Reveal key={a.id} delay={i * 80}><NewsCard article={a} locale={locale} /></Reveal>)}
+            </div>
+          ) : null}
         </Section>
       ) : null}
 
-      {/* ── Documents & rapports ────────────────────────────────────────── */}
+      {/* ── Rapports & documents (publications en couvertures) ─────────── */}
       {docs.length > 0 ? (
-        <Section tone="sand">
-          <Reveal>
-            <div className="flex flex-wrap items-end justify-between gap-4">
+        <Section tone="sand" className="relative isolate overflow-hidden">
+          <ToolsPattern className="text-cacao-900" opacity={0.04} />
+          <div className="grid items-end gap-8 lg:grid-cols-[1.1fr_auto]">
+            <Reveal>
               <SectionHeading eyebrow={t("home.docsEyebrow")} title={t("home.docsTitle")} />
-              <Button href="/transparence" variant="ghost" size="sm" className="shrink-0">{t("home.docsCta")}</Button>
-            </div>
-          </Reveal>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {docs.slice(0, 6).map((d, i) => (
-              <Reveal key={d.id} delay={(i % 3) * 70}><DocCard doc={d} openLabel={t("library.open")} fmt={fmt} /></Reveal>
+              <p className="mt-5 max-w-2xl text-cacao-900/80">{t("home.ctaText")}</p>
+            </Reveal>
+            <Reveal delay={80}>
+              <Button href="/transparence" variant="primary">{t("home.docsCta")}</Button>
+            </Reveal>
+          </div>
+          <div className="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {docs.slice(0, 4).map((d, i) => (
+              <Reveal key={d.id} delay={(i % 4) * 70}>
+                <DocCard doc={d} openLabel={t("library.open")} downloadLabel={t("common.download")} />
+              </Reveal>
             ))}
           </div>
         </Section>
       ) : null}
 
-      {/* ── Écosystème (opérateurs + partenaires) ───────────────────────── */}
-      <Section tone="cream" spacing="md">
+      {/* ── Écosystème : logos en bandeau horizontal ────────────────────── */}
+      <Section tone="cream" spacing="md" className="relative isolate overflow-hidden">
+        <CacaoDecor variant="corner" />
         <Reveal><SectionHeading eyebrow={t("home.partnersEyebrow")} title={t("home.partnersTitle")} align="center" /></Reveal>
         <Reveal delay={120}>
-          <ul className="mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {PARTNER_LOGOS.map((p) => (
-              <li key={p.name} title={p.name} className="flex h-24 items-center justify-center rounded-2xl border border-cacao-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-card">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.src} alt={p.name} loading="lazy" className="max-h-12 w-full object-contain sm:max-h-14" />
-              </li>
-            ))}
-          </ul>
-          <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-cacao-700">
+          <div className="mt-10"><LogoMarquee items={PARTNER_LOGOS} /></div>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-sm text-cacao-700">
             {"Avec l'appui de : "}
             <span className="font-semibold text-cacao-900">{PARTNER_NAMES.join(" · ")}</span>
           </p>
@@ -288,19 +322,18 @@ export async function HomePageView({ page }: { page: WagtailPage }) {
 
       {/* ── CTA final ───────────────────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-forest-700 text-cream">
-        <Blobs variant="dark" />
+        <ToolsPattern className="text-cream" opacity={0.06} />
         <div className="container-x py-16 sm:py-20">
           <Reveal>
-            <div className="flex flex-col items-start justify-between gap-8 rounded-[2rem] bg-forest-800/50 p-9 backdrop-blur-sm sm:p-12 lg:flex-row lg:items-center">
+            <div className="flex flex-col items-start justify-between gap-8 rounded-lg bg-forest-800/55 p-9 backdrop-blur-sm sm:p-12 lg:flex-row lg:items-center">
               <div className="max-w-2xl">
-                <h2 className="font-display text-2xl font-semibold text-cream sm:text-3xl">{t("home.ctaTitle")}</h2>
+                <h2 className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] font-semibold text-balance text-cream">{t("home.ctaTitle")}</h2>
                 <p className="mt-3 text-lg text-cream/80">{t("home.ctaText")}</p>
               </div>
               <Button href="/transparence" variant="light" size="lg" className="shrink-0">{t("home.ctaButton")}</Button>
             </div>
           </Reveal>
         </div>
-        <Wave color="fill-cacao-950" flip />
       </section>
     </>
   );
@@ -341,7 +374,7 @@ export async function IndexPageView({ page }: { page: WagtailPage }) {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {children.items.map((c, i) => (
               <Reveal key={c.id} delay={(i % 3) * 70}>
-                <Link href={pathFromHtmlUrl(c.meta.html_url)} className="group flex h-full flex-col rounded-[1.75rem] bg-white p-7 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover">
+                <Link href={pathFromHtmlUrl(c.meta.html_url)} className="group flex h-full flex-col rounded-lg bg-white p-7 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover">
                   <h3 className="font-display text-lg font-semibold text-cacao-950 group-hover:text-forest-700">{c.title}</h3>
                   {typeof (c.intro ?? c.description) === "string" && (c.intro ?? c.description) ? (
                     <p className="mt-2.5 line-clamp-3 text-cacao-900/75">{(c.intro ?? c.description) as string}</p>
@@ -457,41 +490,110 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   autre: "Document",
 };
 
+/** Couvercles de couverture par type de publication (palette cohérente avec le brand). */
+const DOC_TYPE_COVER: Record<string, { from: string; to: string; accent: string }> = {
+  rapport_activite: { from: "from-cacao-800", to: "to-cacao-950", accent: "text-gold-300" },
+  etats_financiers: { from: "from-forest-700", to: "to-forest-900", accent: "text-gold-300" },
+  rapport_audit:    { from: "from-cacao-700", to: "to-forest-900", accent: "text-gold-300" },
+  politique:        { from: "from-forest-800", to: "to-cacao-950", accent: "text-gold-300" },
+  texte_juridique:  { from: "from-cacao-900", to: "to-forest-800", accent: "text-cream" },
+  etude:            { from: "from-gold-700", to: "to-cacao-900", accent: "text-cream" },
+  appel_offres:     { from: "from-cacao-700", to: "to-cacao-900", accent: "text-gold-300" },
+  brochure:         { from: "from-gold-600", to: "to-gold-700", accent: "text-cream" },
+  autre:            { from: "from-cacao-800", to: "to-cacao-950", accent: "text-gold-300" },
+};
+
 type Fmt = Awaited<ReturnType<typeof getFormatter>>;
 
-function DocCard({ doc, openLabel, fmt }: { doc: WagtailPage; openLabel: string; fmt?: Fmt }) {
-  const href = (doc.file_url as string) || pathFromHtmlUrl(doc.meta.html_url);
-  const isFile = Boolean(doc.file_url);
-  const typeLabel = DOC_TYPE_LABELS[(doc.document_type as string) ?? "autre"] ?? "Document";
+/**
+ * « Affiche de publication » — couverture verticale 3/4 façon poster institutionnel
+ * (PNUD/PAM/IFAD) avec millésime en grand, type au sommet, marque FODECC en bas,
+ * motifs cacao/café discrets ; le titre/description vit sous la couverture.
+ */
+function DocCard({ doc, openLabel, downloadLabel, fmt }: { doc: WagtailPage; openLabel: string; downloadLabel?: string; fmt?: Fmt }) {
+  const href = (doc.file_url as string) || (doc.external_url as string) || pathFromHtmlUrl(doc.meta.html_url);
+  const isFile = Boolean(doc.file_url) || Boolean(doc.external_url);
+  const docType = (doc.document_type as string) ?? "autre";
+  const typeLabel = DOC_TYPE_LABELS[docType] ?? "Document";
+  const cover = DOC_TYPE_COVER[docType] ?? DOC_TYPE_COVER.autre;
   const pub = typeof doc.publication_date === "string" ? new Date(doc.publication_date) : null;
+  const year = doc.year ? String(doc.year) : pub && fmt ? fmt.dateTime(pub, { year: "numeric" }) : null;
+  const actionLabel = isFile && downloadLabel ? downloadLabel : openLabel;
   return (
     <a
       href={href}
       target={isFile ? "_blank" : undefined}
       rel={isFile ? "noopener noreferrer" : undefined}
-      className="group flex h-full flex-col rounded-[1.75rem] bg-white p-7 shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover"
+      className="group flex h-full flex-col"
     >
-      <div className="flex items-start justify-between gap-3">
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-cacao-900 text-cream" aria-hidden>
-          <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none"><path d="M5 2h7l4 4v12H5z M12 2v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
-        </span>
-        <span className="flex flex-col items-end gap-1.5 text-right">
-          <Badge tone="gold">{typeLabel}</Badge>
-          {doc.year ? <span className="text-xs font-semibold text-cacao-500">{String(doc.year)}</span> : pub && fmt ? <span className="text-xs text-cacao-500">{fmt.dateTime(pub, { year: "numeric" })}</span> : null}
+      {/* Couverture façon « affiche » */}
+      <div className={cn("relative isolate aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br shadow-card transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover", cover.from, cover.to)}>
+        {/* Décor : grain + cosse cacao discrète en filigrane */}
+        <div aria-hidden className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:14px_14px] text-cream" />
+        <svg aria-hidden viewBox="0 0 200 200" className="absolute -right-10 -bottom-10 h-56 w-56 opacity-[0.10] text-cream">
+          <path d="M100 20c30 0 60 30 60 75s-30 85-60 85-60-40-60-85S70 20 100 20z" fill="currentColor" />
+          <path d="M100 30v140M80 50c10 20 30 20 40 0M75 80c12 22 38 22 50 0M72 110c14 24 42 24 56 0M75 140c12 22 38 22 50 0" stroke="rgba(33,18,8,0.45)" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </svg>
+        <div aria-hidden className="absolute inset-x-6 top-1/2 h-px -translate-y-12 bg-cream/15" />
+        <div aria-hidden className="absolute inset-x-6 top-1/2 h-px translate-y-12 bg-cream/10" />
+
+        {/* Contenu de la couverture */}
+        <div className="relative flex h-full flex-col p-5 text-cream sm:p-6">
+          <div className="flex items-start justify-between gap-2">
+            <span className="inline-flex items-center rounded-full border border-cream/30 bg-cream/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-cream backdrop-blur-sm">
+              {typeLabel}
+            </span>
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-cream/15 text-cream backdrop-blur-sm transition-colors group-hover:bg-cream/25" aria-hidden>
+              {isFile ? (
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 16h12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              ) : (
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none"><path d="M4 10h11M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              )}
+            </span>
+          </div>
+
+          {/* Millésime en grand au cœur de la couverture */}
+          <div className="my-auto pt-6 text-center">
+            {year ? (
+              <p className={cn("font-display text-[2.6rem] font-semibold leading-none tracking-tight drop-shadow-sm sm:text-[3rem]", cover.accent)}>{year}</p>
+            ) : (
+              <p className={cn("font-display text-xl font-semibold uppercase tracking-[0.2em]", cover.accent)}>FODECC</p>
+            )}
+            <p className="mx-auto mt-3 h-px w-10 bg-cream/40" aria-hidden />
+            <p className="mt-3 text-[0.65rem] uppercase tracking-[0.22em] text-cream/70">Publication FODECC</p>
+          </div>
+
+          {/* Pied de couverture : marque FODECC */}
+          <div className="mt-auto flex items-center gap-2.5 pt-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/fodecc-logo.jpeg" alt="" aria-hidden className="h-8 w-8 rounded bg-white/95 object-contain p-0.5 ring-1 ring-cream/20" />
+            <div className="leading-tight">
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-cream">FODECC</p>
+              <p className="text-[0.6rem] uppercase tracking-[0.14em] text-cream/65">République du Cameroun</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Titre & action sous la couverture */}
+      <div className="mt-5 flex flex-1 flex-col">
+        <h3 className="font-display text-base font-semibold leading-snug text-cacao-950 group-hover:text-forest-700 sm:text-lg">
+          {doc.title}
+        </h3>
+        {typeof doc.description === "string" && doc.description ? (
+          <p className="mt-1.5 line-clamp-2 text-sm text-cacao-700">{doc.description}</p>
+        ) : null}
+        <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-forest-700">
+          {isFile ? (
+            <>
+              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 16h12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              {actionLabel}
+            </>
+          ) : (
+            <>{actionLabel}<ArrowSm /></>
+          )}
         </span>
       </div>
-      <h3 className="mt-5 font-display text-lg font-semibold leading-snug text-cacao-950 group-hover:text-forest-700">{doc.title}</h3>
-      {typeof doc.description === "string" && doc.description ? <p className="mt-2.5 line-clamp-3 text-sm text-cacao-900/75">{doc.description}</p> : null}
-      <span className="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest-700">
-        {isFile ? (
-          <>
-            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 16h12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            {openLabel}
-          </>
-        ) : (
-          <>{openLabel}<ArrowSm /></>
-        )}
-      </span>
     </a>
   );
 }
@@ -505,8 +607,12 @@ export async function LibraryIndexPageView({ page }: { page: WagtailPage }) {
       <PageHero eyebrow={t("nav.transparency")} title={page.title || t("library.indexTitle")} intro={(page.intro as string) || t("library.indexIntro")} />
       <Section tone="cream">
         {list.items.length ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {list.items.map((doc, i) => <Reveal key={doc.id} delay={(i % 3) * 60}><DocCard doc={doc} openLabel={t("library.open")} fmt={fmt} /></Reveal>)}
+          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {list.items.map((doc, i) => (
+              <Reveal key={doc.id} delay={(i % 4) * 60}>
+                <DocCard doc={doc} openLabel={t("library.open")} downloadLabel={t("common.download")} fmt={fmt} />
+              </Reveal>
+            ))}
           </div>
         ) : (
           <p className="text-cacao-600">{t("library.noResults")}</p>
@@ -528,7 +634,7 @@ export async function LibraryItemPageView({ page }: { page: WagtailPage }) {
       <Section tone="cream">
         <div className="mx-auto max-w-3xl">
           <div className="mb-8"><BackLink href="/transparence" label={t("common.backToList")} /></div>
-          <div className="rounded-[2rem] bg-white p-8 shadow-card sm:p-10">
+          <div className="rounded-xl bg-white p-8 shadow-card sm:p-10">
             <div className="flex flex-wrap items-center gap-3">
               <Badge tone="gold">{typeLabel}</Badge>
               {page.year ? <span className="text-sm font-semibold text-cacao-600">{String(page.year)}</span> : null}

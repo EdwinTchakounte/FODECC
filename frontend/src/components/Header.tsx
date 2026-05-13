@@ -16,25 +16,6 @@ const NAV: Array<{ key: string; href: string }> = [
   { key: "contact", href: "/contact" },
 ];
 
-function Logo({ light }: { light?: boolean }) {
-  return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label="FODECC — accueil">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/brand/fodecc-mark.png"
-        alt=""
-        className="h-10 w-10 rounded-2xl object-contain"
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).style.display = "none";
-        }}
-      />
-      <span className={cn("text-lg font-extrabold tracking-tight", light ? "text-cream" : "text-cacao-950")}>
-        FODECC
-      </span>
-    </Link>
-  );
-}
-
 function SearchIcon() {
   return (
     <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden>
@@ -47,20 +28,10 @@ function SearchIcon() {
 export default function Header() {
   const t = useTranslations();
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Ferme le menu mobile au changement de route
   useEffect(() => setOpen(false), [pathname]);
 
-  // Bloque le scroll quand le menu mobile est ouvert
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -69,73 +40,112 @@ export default function Header() {
   }, [open]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "border-b border-cacao-100 bg-cream/85 backdrop-blur-md"
-          : "border-b border-transparent bg-cream",
-      )}
-    >
-      <div className="container-x flex h-[4.5rem] items-center justify-between gap-4">
-        <Logo />
-
-        <nav aria-label={t("common.menu")} className="hidden items-center gap-1 lg:flex">
-          {NAV.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                className={cn(
-                  "rounded-full px-3.5 py-2 text-[0.92rem] font-medium transition-colors",
-                  active ? "bg-cacao-900/8 text-cacao-950" : "text-cacao-900/80 hover:bg-cacao-900/5 hover:text-cacao-950",
-                )}
-              >
-                {t(`nav.${item.key}`)}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <Link
-            href="/recherche"
-            aria-label={t("common.search")}
-            className="grid h-10 w-10 place-items-center rounded-full text-cacao-900 transition-colors hover:bg-cacao-900/5"
-          >
-            <SearchIcon />
-          </Link>
-          <div className="hidden sm:block">
-            <LocaleSwitcher />
+    <header className="sticky top-0 z-50">
+      {/* ── Bandeau institutionnel bilingue (FR · logo · EN) — toujours visible ── */}
+      <div className="relative isolate overflow-hidden text-cream">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cacao-950 via-cacao-900 to-cacao-950" />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 opacity-[0.06] [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:18px_18px]"
+        />
+        <div className="container-x grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-5 sm:gap-10 sm:py-6">
+          <div className="hidden text-right md:block">
+            <p className="font-display text-[0.78rem] font-semibold uppercase leading-tight tracking-[0.08em] text-gold-300 sm:text-[0.95rem]">
+              Fonds de Développement<br className="hidden sm:inline" /> des Filières Cacao et Café
+            </p>
+            <p className="mt-1.5 text-[0.7rem] italic text-cream/65 sm:text-xs">
+              Au service de la promotion et du développement des filières cacao et café
+            </p>
           </div>
-          <Link
-            href="/guichet-producteurs"
-            className="hidden rounded-full bg-cacao-900 px-5 py-2.5 text-sm font-semibold text-cream shadow-card transition-all hover:bg-cacao-800 hover:shadow-card-hover md:inline-flex"
-          >
-            {t("nav.cta")}
+          <Link href="/" aria-label="FODECC — accueil" className="block place-self-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/fodecc-logo.jpeg"
+              alt="FODECC — CCODEF"
+              className="h-20 w-20 rounded-md bg-white object-contain shadow-soft ring-1 ring-cream/20 sm:h-24 sm:w-24"
+            />
           </Link>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? t("common.close") : t("common.menu")}
-            aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-full text-cacao-900 transition-colors hover:bg-cacao-900/5 lg:hidden"
-          >
-            <span className="relative block h-4 w-5" aria-hidden>
-              <span className={cn("absolute left-0 top-0 h-0.5 w-5 bg-current transition-all", open && "top-1.5 rotate-45")} />
-              <span className={cn("absolute left-0 top-1.5 h-0.5 w-5 bg-current transition-all", open && "opacity-0")} />
-              <span className={cn("absolute left-0 top-3 h-0.5 w-5 bg-current transition-all", open && "top-1.5 -rotate-45")} />
-            </span>
-          </button>
+          <div className="hidden text-left md:block">
+            <p className="font-display text-[0.78rem] font-semibold uppercase leading-tight tracking-[0.08em] text-gold-300 sm:text-[0.95rem]">
+              Cocoa &amp; Coffee Sub-Sectors<br className="hidden sm:inline" /> Development Fund
+            </p>
+            <p className="mt-1.5 text-[0.7rem] italic text-cream/65 sm:text-xs">
+              For the promotion and development of the cocoa and coffee sub-sectors
+            </p>
+          </div>
+          <p className="col-span-3 mt-2 text-center text-[0.7rem] uppercase tracking-[0.16em] text-gold-300 md:hidden">
+            Fonds de Développement des Filières Cacao &amp; Café
+          </p>
         </div>
       </div>
 
-      {/* Menu mobile / tablette */}
+      {/* ── Barre de navigation — toujours visible (statique avec le bandeau au-dessus) ── */}
+      <div className="border-y border-cacao-100 bg-cream shadow-[0_8px_24px_-18px_rgba(28,20,12,0.35)]">
+        <div className="container-x flex h-14 items-center gap-3 sm:h-16 sm:gap-4">
+          <nav aria-label={t("common.menu")} className="hidden flex-1 items-center gap-0.5 lg:flex">
+            {NAV.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={cn(
+                    "group relative px-3.5 py-2 text-[0.95rem] font-medium transition-colors",
+                    active ? "text-cacao-950" : "text-cacao-900/80 hover:text-cacao-950",
+                  )}
+                >
+                  {t(`nav.${item.key}`)}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute inset-x-3.5 -bottom-[1px] h-0.5 origin-center bg-gold-500 transition-transform duration-300",
+                      active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                    )}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-1 sm:gap-2.5">
+            <Link
+              href="/recherche"
+              aria-label={t("common.search")}
+              className="grid h-10 w-10 place-items-center rounded-md text-cacao-900 transition-colors hover:bg-cacao-900/5"
+            >
+              <SearchIcon />
+            </Link>
+            <div className="hidden sm:block">
+              <LocaleSwitcher />
+            </div>
+            <Link
+              href="/guichet-producteurs"
+              className="hidden rounded-md bg-cacao-900 px-5 py-2.5 text-sm font-semibold text-cream shadow-sm transition-all hover:bg-cacao-800 hover:shadow-md md:inline-flex"
+            >
+              {t("nav.cta")}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? t("common.close") : t("common.menu")}
+              aria-expanded={open}
+              className="grid h-10 w-10 place-items-center rounded-md text-cacao-900 transition-colors hover:bg-cacao-900/5 lg:hidden"
+            >
+              <span className="relative block h-4 w-5" aria-hidden>
+                <span className={cn("absolute left-0 top-0 h-0.5 w-5 bg-current transition-all", open && "top-1.5 rotate-45")} />
+                <span className={cn("absolute left-0 top-1.5 h-0.5 w-5 bg-current transition-all", open && "opacity-0")} />
+                <span className={cn("absolute left-0 top-3 h-0.5 w-5 bg-current transition-all", open && "top-1.5 -rotate-45")} />
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu mobile / tablette — ouvre sous la barre de nav */}
       <div
         className={cn(
-          "fixed inset-x-0 top-[4.5rem] z-40 origin-top overflow-hidden bg-cream transition-[max-height,opacity] duration-300 lg:hidden",
-          open ? "max-h-[calc(100vh-4.5rem)] opacity-100" : "max-h-0 opacity-0 pointer-events-none",
+          "absolute inset-x-0 z-40 origin-top overflow-hidden bg-cream transition-[max-height,opacity] duration-300 lg:hidden",
+          open ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none",
         )}
       >
         <nav className="container-x flex flex-col gap-1 py-6">
@@ -143,7 +153,7 @@ export default function Header() {
             <Link
               key={item.key}
               href={item.href}
-              className="rounded-2xl px-4 py-3.5 text-lg font-semibold text-cacao-950 transition-colors hover:bg-cacao-900/5"
+              className="rounded-lg px-4 py-3.5 text-lg font-semibold text-cacao-950 transition-colors hover:bg-cacao-900/5"
             >
               {t(`nav.${item.key}`)}
             </Link>
@@ -152,7 +162,7 @@ export default function Header() {
             <LocaleSwitcher />
             <Link
               href="/guichet-producteurs"
-              className="rounded-full bg-cacao-900 px-6 py-3 text-sm font-semibold text-cream"
+              className="rounded-md bg-cacao-900 px-6 py-3 text-sm font-semibold text-cream"
             >
               {t("nav.cta")}
             </Link>

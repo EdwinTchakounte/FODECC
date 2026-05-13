@@ -47,7 +47,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
       return (
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={v.alt_text ?? ""} loading="lazy" className="w-full rounded-3xl shadow-card" />
+          <img src={src} alt={v.alt_text ?? ""} loading="lazy" className="w-full rounded-lg shadow-card" />
           {v.caption ? <figcaption className="mt-2.5 text-sm text-cacao-600">{v.caption}</figcaption> : null}
         </figure>
       );
@@ -61,7 +61,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
             const src = imgFrom(img.image as never);
             return src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={src} alt={img.alt_text ?? ""} loading="lazy" className="h-48 w-full rounded-2xl object-cover shadow-card" />
+              <img key={i} src={src} alt={img.alt_text ?? ""} loading="lazy" className="h-48 w-full rounded-lg object-cover shadow-card" />
             ) : null;
           })}
         </div>
@@ -71,7 +71,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
     case "embed":
       return (
         <div
-          className="overflow-hidden rounded-3xl bg-cacao-950 shadow-card [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:w-full"
+          className="overflow-hidden rounded-lg bg-cacao-950 shadow-card [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: (block.value as { html?: string }).html ?? "" }}
         />
       );
@@ -87,7 +87,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
       return (
         <a
           href={href}
-          className="group flex items-center gap-4 rounded-2xl border border-cacao-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-card"
+          className="group flex items-center gap-4 rounded-lg border border-cacao-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-card"
         >
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gold-300/40 text-cacao-800" aria-hidden>
             <DocIcon />
@@ -110,7 +110,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
           v.style ?? "info"
         ];
       return (
-        <aside className={cn("rounded-2xl border-l-4 px-5 py-4", tone)}>
+        <aside className={cn("rounded-lg border-l-4 px-5 py-4", tone)}>
           {v.title ? <p className="font-semibold text-cacao-950">{v.title}</p> : null}
           <div className="prose-fodecc text-cacao-800" dangerouslySetInnerHTML={{ __html: v.text }} />
         </aside>
@@ -138,7 +138,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
     case "key_figures": {
       const v = block.value as { figures: Array<{ value: string; unit?: string; label: string }> };
       return (
-        <div className="grid gap-4 rounded-3xl bg-cacao-950 p-8 text-cream sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 rounded-lg bg-cacao-950 p-8 text-cream sm:grid-cols-2 lg:grid-cols-4">
           {v.figures?.map((f, i) => (
             <div key={i}>
               <div className="text-3xl font-extrabold text-gold-300 sm:text-4xl">
@@ -155,7 +155,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
     case "accordion": {
       const v = block.value as { items: Array<{ question: string; answer: string }> };
       return (
-        <div className="divide-y divide-cacao-100 overflow-hidden rounded-2xl border border-cacao-100 bg-white">
+        <div className="divide-y divide-cacao-100 overflow-hidden rounded-lg border border-cacao-100 bg-white">
           {v.items?.map((it, i) => (
             <details key={i} className="group px-5 py-4 [&_summary::-webkit-details-marker]:hidden">
               <summary className="flex cursor-pointer items-center justify-between gap-4 font-semibold text-cacao-950">
@@ -178,7 +178,7 @@ function Block({ block }: { block: StreamFieldBlock }) {
       const [head, ...body] = v.rows ?? [];
       return (
         <div className="overflow-x-auto">
-          <table className="w-full overflow-hidden rounded-2xl text-sm shadow-card">
+          <table className="w-full overflow-hidden rounded-lg text-sm shadow-card">
             {v.caption ? <caption className="mb-2 text-left font-semibold text-cacao-950">{v.caption}</caption> : null}
             {head ? (
               <thead>

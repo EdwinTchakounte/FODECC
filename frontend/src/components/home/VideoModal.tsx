@@ -70,7 +70,7 @@ export default function VideoModal({
               poster={poster || undefined}
               controls
               playsInline
-              className="aspect-video w-full rounded-2xl bg-black shadow-soft"
+              className="aspect-video w-full rounded-lg bg-black shadow-soft"
             />
           </div>
         </div>

@@ -21,7 +21,7 @@ type SectionProps = {
   id?: string;
 };
 
-const SPACING = { sm: "py-12 sm:py-16", md: "py-16 sm:py-20", lg: "py-20 sm:py-28" };
+const SPACING = { sm: "py-14 sm:py-20", md: "py-20 sm:py-24", lg: "py-24 sm:py-32" };
 
 export function Section({ children, tone = "cream", className, spacing = "lg", id }: SectionProps) {
   return (
@@ -55,11 +55,16 @@ export function SectionHeading({ eyebrow, title, intro, align = "left", classNam
           {eyebrow}
         </span>
       ) : null}
-      <h2 className={cn("mt-3 text-3xl font-extrabold leading-tight sm:text-4xl", invert ? "text-cream" : "text-cacao-950")}>
+      <h2
+        className={cn(
+          "mt-3 font-display text-[clamp(1.7rem,2.6vw,2.4rem)] font-semibold leading-[1.15] text-balance",
+          invert ? "text-cream" : "text-cacao-950",
+        )}
+      >
         {title}
       </h2>
       {intro ? (
-        <p className={cn("mt-4 text-lg leading-relaxed", invert ? "text-cream/80" : "text-cacao-900/80")}>{intro}</p>
+        <p className={cn("mt-4 text-pretty text-lg leading-relaxed", invert ? "text-cream/80" : "text-cacao-900/80")}>{intro}</p>
       ) : null}
     </div>
   );

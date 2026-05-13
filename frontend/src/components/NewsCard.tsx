@@ -35,7 +35,7 @@ export default function NewsCard({
     <Link
       href={href}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover",
+        "group flex flex-col overflow-hidden rounded-lg bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover",
         featured && "sm:flex-row",
       )}
     >

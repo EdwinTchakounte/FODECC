@@ -14,14 +14,14 @@ export default async function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto rounded-t-[2.5rem] bg-cacao-950 text-cream">
+    <footer className="mt-auto bg-cacao-950 text-cream">
       <div className="container-x py-16 sm:py-20">
         <div className="grid gap-12 lg:grid-cols-12">
           {/* Marque + accroche + réseaux */}
           <div className="lg:col-span-4">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/fodecc-mark.png" alt="" className="h-10 w-10 rounded-2xl bg-cream/95 object-contain p-1" />
+              <img src="/brand/fodecc-logo.jpeg" alt="FODECC" className="h-12 w-12 rounded-lg bg-white object-contain shadow-sm" />
               <span className="text-lg font-extrabold tracking-tight">FODECC</span>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-cream/70">{t("footer.tagline")}</p>
