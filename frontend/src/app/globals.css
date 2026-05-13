@@ -2,33 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+@layer base {
+  :root {
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Fraunces", "Plus Jakarta Sans", Georgia, "Times New Roman", serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream text-cacao-950 antialiased;
+  }
+
+  ::selection {
+    @apply bg-gold-400/40 text-cacao-950;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-balance;
+  }
+
+  :where(a, button, input, summary, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-forest-500 ring-offset-cream rounded-sm;
+  }
 }
 
-/* Lien d'évitement (accessibilité WCAG) */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 100;
-  padding: 0.75rem 1rem;
-  background: #fff;
-  color: #000;
-}
-.skip-link:focus {
-  left: 0;
+@layer components {
+  /* Conteneur pleine largeur : aucune marge gauche/droite — juste un petit
+     "gouttière" pour que le texte ne colle pas au bord de l'écran. */
+  .container-x {
+    @apply mx-auto w-full px-4 sm:px-5 lg:px-6;
+  }
+  .container-wide {
+    @apply mx-auto w-full px-4 sm:px-5 lg:px-6;
+  }
+
+  .skip-link {
+    @apply absolute left-3 top-3 -translate-y-20 rounded-full bg-cacao-900 px-4 py-2 text-sm
+      font-medium text-cream transition-transform focus:translate-y-0 z-[100];
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]
+      text-forest-600;
+  }
+
+  /* Contenu riche (RichText / RawHTML venant de Wagtail) */
+  .prose-fodecc {
+    @apply text-[1.075rem] leading-[1.75] text-cacao-900/90;
+  }
+  .prose-fodecc > * + * {
+    @apply mt-5;
+  }
+  .prose-fodecc h2 {
+    @apply mt-12 mb-3 font-display text-[1.6rem] font-semibold leading-snug text-cacao-950;
+  }
+  .prose-fodecc h3 {
+    @apply mt-9 mb-2 font-display text-xl font-semibold text-cacao-950;
+  }
+  .prose-fodecc a {
+    @apply font-medium text-forest-700 underline decoration-forest-300 decoration-2 underline-offset-2
+      hover:decoration-forest-600;
+  }
+  .prose-fodecc ul {
+    @apply list-disc space-y-1.5 pl-6 marker:text-cacao-400;
+  }
+  .prose-fodecc ol {
+    @apply list-decimal space-y-1.5 pl-6 marker:text-cacao-400;
+  }
+  .prose-fodecc blockquote {
+    @apply rounded-r-3xl border-l-4 border-gold-400 bg-sand px-6 py-5 font-display text-lg italic text-cacao-800;
+  }
+  .prose-fodecc hr {
+    @apply my-10 border-cacao-200;
+  }
+  .prose-fodecc img {
+    @apply my-8 rounded-[1.75rem] shadow-card;
+  }
+  .prose-fodecc table {
+    @apply w-full border-collapse overflow-hidden rounded-2xl text-sm shadow-card;
+  }
+  .prose-fodecc th {
+    @apply bg-cacao-900 px-4 py-3 text-left font-semibold text-cream;
+  }
+  .prose-fodecc td {
+    @apply border-b border-cacao-100 px-4 py-3;
+  }
 }
 
-/* Styles de base du contenu riche (RichText / RawHTML venant de Wagtail) */
-.rich-text {
-  line-height: 1.7;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  /* Dégradé doux en bas (héros image / vidéo). */
+  .img-soft-b::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0;
+    background: linear-gradient(to top, rgba(33, 18, 8, 0.78) 0%, rgba(33, 18, 8, 0.35) 38%, rgba(33, 18, 8, 0.1) 70%, transparent 100%);
+  }
+  /* Défilement infini (logos partenaires). */
+  .marquee-track {
+    animation: marquee 38s linear infinite;
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
-.rich-text h2 { @apply text-2xl font-bold mt-8 mb-3; }
-.rich-text h3 { @apply text-xl font-semibold mt-6 mb-2; }
-.rich-text p { @apply my-4; }
-.rich-text ul { @apply list-disc pl-6 my-4; }
-.rich-text ol { @apply list-decimal pl-6 my-4; }
-.rich-text a { @apply text-cacao-700 underline; }
-.rich-text blockquote { @apply border-l-4 border-cacao-300 pl-4 italic my-6 text-gray-700; }
-.rich-text img { @apply my-6 rounded; }

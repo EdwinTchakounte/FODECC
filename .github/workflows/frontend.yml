@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  CI — Frontend Next.js (vérifications uniquement)
+#  Le déploiement est géré par Vercel (intégration GitHub native).
+#       typecheck → lint → build
+# ─────────────────────────────────────────────────────────────────────────────
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Typecheck · Lint · Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      # Valeurs factices : suffisent pour `next build` (les pages ISR tolèrent l'absence de backend au build).
+      WAGTAIL_API_URL: http://localhost:8000
+      NEXT_PUBLIC_WAGTAIL_API_URL: http://localhost:8000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      REVALIDATE_SECRET: ci-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci || npm install
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build

@@ -63,14 +63,15 @@ Détail complet : [`content-model.md`](content-model.md).
 
 Tous les modèles de page définissent `api_fields` → l'API v2 expose exactement ce dont le front a besoin (images en *renditions* dimensionnées, StreamField sérialisé en JSON).
 
-## 5. Déploiement on-prem (Cameroun)
+## 5. Déploiement
 
-- `docker compose up --build` lance : `db` (PostgreSQL 16), `backend` (Wagtail/Gunicorn), `frontend` (Next standalone), `nginx`.
-- Volumes persistants : `pgdata` (base), `media` (uploads, servis par Nginx), `static` (assets admin).
-- TLS : monter des certificats Let's Encrypt dans `deploy/nginx/certs` puis activer le bloc `443` de `deploy/nginx/default.conf` (corrige l'erreur de chaîne SSL relevée dans l'audit).
-- Sauvegardes : `pg_dump` de `pgdata` + archivage de `media` (cron côté hôte).
-- Mise à l'échelle : augmenter `--workers` Gunicorn et le nombre d'instances `frontend` derrière Nginx ; le backend est sans état (sessions en base).
-- Variables : voir `.env.example` (secrets, hôtes autorisés, URLs publiques, jeton de revalidation partagé Next ⇄ Wagtail).
+**Backend** (Wagtail) → **VPS Contabo**, via `docker compose -f backend/docker-compose.prod.yml` : services `db` (PostgreSQL 16), `web` (Wagtail/Gunicorn, entrypoint = migrate + collectstatic), `nginx` (TLS Let's Encrypt), `certbot` (renouvellement auto). Domaine `backend.fodecc-vitrine.horus-lab.com` (DNS chez LWS). Sortie HTML headless : Nginx proxie `/cms/`, `/api/v2/`, `/documents/`, `/healthz/` vers `web:8000` et sert `/static/` + `/media/`. Volumes : `postgres_data`, `static_volume`, `media_volume`, `certbot_certs`, `certbot_www`. Variables : `backend/.env` (depuis `backend/.env.prod.example`).
+
+**Frontend** (Next.js) → **Vercel**, sur `fodecc-vitrine.horus-lab.com`. Consomme `https://backend.fodecc-vitrine.horus-lab.com/api/v2/...` ; revalidation ISR poussée par Wagtail sur `page_published` (CORS + secret partagé via `.env`).
+
+**CI/CD** : GitHub Actions. `.github/workflows/backend.yml` = `lint (ruff)` → `check (manage.py check)` → `deploy` (SSH → Contabo : `git pull` + `docker compose up --build`, cf. `backend/deploy/deploy.sh`). `frontend.yml` = typecheck → lint → build (le déploiement frontend est géré par Vercel).
+
+Provisioning du VPS, DNS, premier déploiement, secrets GitHub, exploitation/sauvegardes : voir [`../backend/deploy/server-setup.md`](../backend/deploy/server-setup.md). Le pattern de déploiement est calqué sur `afrika_mode/backend/`.
 
 ## 6. Migration depuis l'ancien site
 

@@ -40,7 +40,17 @@ export default async function LocaleLayout(props: {
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen flex flex-col bg-white text-gray-900 antialiased">
+      <head>
+        {/* Police Plus Jakarta Sans via Google Fonts (chargée par le navigateur, pas au build). */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        />
+      </head>
+      <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <a href="#main-content" className="skip-link">
             {t("skipToContent")}

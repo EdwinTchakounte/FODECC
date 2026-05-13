@@ -14,12 +14,12 @@ from taggit.models import TaggedItemBase
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.api import APIField
 from wagtail.fields import StreamField
-from wagtail.images.api.fields import ImageRenditionField
 from wagtail.models import Page
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
 from core.blocks import BodyStreamBlock
+from core.imageutils import rendition_url
 from standardpages.models import SEOFieldsMixin
 
 
@@ -54,7 +54,7 @@ class NewsIndexPage(SEOFieldsMixin, Page):
     api_fields = [
         APIField("intro"),
         APIField("search_description_long"),
-        APIField("social_image", serializer=ImageRenditionField("fill-1200x630")),
+        APIField("social_image_url"),
         APIField("locale"),
     ]
 
@@ -87,6 +87,14 @@ class NewsPage(SEOFieldsMixin, Page):
     def tag_list(self):
         return [t.name for t in self.tags.all()]
 
+    @property
+    def cover_url(self):
+        return rendition_url(self.cover_image, "fill-1280x720")
+
+    @property
+    def cover_thumb_url(self):
+        return rendition_url(self.cover_image, "fill-640x420")
+
     search_fields = Page.search_fields + [
         index.SearchField("intro"),
         index.SearchField("body"),
@@ -107,13 +115,13 @@ class NewsPage(SEOFieldsMixin, Page):
     api_fields = [
         APIField("date"),
         APIField("intro"),
-        APIField("cover_image", serializer=ImageRenditionField("fill-1200x675")),
-        APIField("cover_image_thumb", serializer=ImageRenditionField("fill-600x400", source="cover_image")),
+        APIField("cover_url"),
+        APIField("cover_thumb_url"),
         APIField("body"),
         APIField("category_list"),
         APIField("tag_list"),
         APIField("search_description_long"),
-        APIField("social_image", serializer=ImageRenditionField("fill-1200x630")),
+        APIField("social_image_url"),
         APIField("locale"),
     ]
 

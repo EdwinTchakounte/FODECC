@@ -14,9 +14,10 @@ export function buildPageMetadata(page: WagtailPage, locale: string, path: strin
     (page.intro as string) ||
     "";
   const ogImage = mediaUrl(
-    (page.social_image as { url?: string } | null)?.url ??
-      (page.cover_image as { url?: string } | null)?.url ??
-      (page.hero_image as { url?: string } | null)?.url,
+    (page.social_image_url as string) ||
+      (page.cover_url as string) ||
+      (page.hero_image_url as string) ||
+      undefined,
   );
   const url = `${SITE_URL}/${locale}${path === "/" ? "" : path}`;
   const otherLocale = locale === "fr" ? "en" : "fr";

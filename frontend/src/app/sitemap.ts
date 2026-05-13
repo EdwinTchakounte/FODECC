@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 
-import { pathFromHtmlUrl } from "@/components/page-types";
 import { routing } from "@/i18n/routing";
-import { listPages } from "@/lib/wagtail";
+import { listPages, pathFromHtmlUrl } from "@/lib/wagtail";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 

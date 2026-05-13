@@ -1,0 +1,92 @@
+# ─────────────────────────────────────────────────────────────────────
+# docker-compose PRODUCTION — backend FODECC (Wagtail headless) sur VPS Contabo
+#
+#   PostgreSQL 16  +  Wagtail/Gunicorn  +  Nginx (TLS Let's Encrypt)  +  Certbot
+#   (le frontend Next.js est hébergé séparément sur Vercel et consomme l'API.)
+#
+# Usage sur le VPS, depuis backend/ :
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+#   (le script deploy/deploy.sh — appelé par la CI — fait ça pour vous)
+# Premier déploiement : bootstrap des certs avec deploy/init-letsencrypt.sh
+# ─────────────────────────────────────────────────────────────────────
+name: fodecc-backend
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    entrypoint: ["/app/deploy/entrypoint-prod.sh"]
+    command:
+      [
+        "gunicorn", "config.wsgi:application",
+        "--bind", "0.0.0.0:8000",
+        "--workers", "3",
+        "--timeout", "60",
+        "--access-logfile", "-",
+        "--error-logfile", "-",
+      ]
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - web
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    # Renouvellement auto toutes les 12 h (no-op tant que le cert n'expire pas < 30 j).
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      while :; do
+        certbot renew --quiet;
+        sleep 12h & wait $${!};
+      done;"
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  certbot_certs:
+  certbot_www:

@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "wagtail_localize.locales",  # remplace "wagtail.locales"
     "wagtail_headless_preview",
     "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",  # sert les assets Swagger UI / Redoc en local (pas de CDN)
     "corsheaders",
     "modelcluster",
     "taggit",
@@ -180,6 +182,35 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# ─── Documentation OpenAPI / Swagger (drf-spectacular) ───────────────────────
+SPECTACULAR_SETTINGS = {
+    "TITLE": "API FODECC — CMS Wagtail headless",
+    "DESCRIPTION": (
+        "API publique du site fodecc.cm, consommée par le frontend Next.js (Vercel) "
+        "et exploitable par des intégrations tierces / open data.\n\n"
+        "### Points d'entrée\n"
+        "- **`GET /api/v2/pages/`** — liste des pages publiées (filtres : `type`, `locale`, "
+        "`child_of`, `fields`, `order`, `limit`, `offset`, `search`).\n"
+        "- **`GET /api/v2/pages/find/?html_path=/…/`** — résolution d'une URL vers une page "
+        "(redirige vers son détail).\n"
+        "- **`GET /api/v2/pages/{id}/?fields=*`** — détail complet d'une page.\n"
+        "- **`GET /api/v2/images/{id}/`** , **`GET /api/v2/documents/{id}/`** — médias.\n"
+        "- **`GET /api/search/?q=…&locale=fr`** — recherche plein-texte (documentée ci-dessous).\n"
+        "- **`GET /healthz/`** — sonde de santé.\n\n"
+        "Les endpoints `api/v2/*` sont fournis par l'API v2 de Wagtail ; ils sont aussi "
+        "explorables de façon interactive via l'**API navigable** : "
+        "[`/api/v2/pages/`](/api/v2/pages/)."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # Assets servis par le paquet sidecar (pas de CDN) → fonctionne hors-ligne
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 

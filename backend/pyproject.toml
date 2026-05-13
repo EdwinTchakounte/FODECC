@@ -14,6 +14,7 @@ dependencies = [
     "django-cors-headers>=4.4",
     "wagtail-headless-preview>=0.8",
     "wagtail-localize>=1.11",
+    "drf-spectacular[sidecar]>=0.27,<0.29",
     "python-dotenv>=1.0",
     "requests>=2.31",
 ]
@@ -42,5 +43,7 @@ ignore = ["DJ008", "DJ012"]
 "core/blocks.py" = ["N", "E501"]
 # Modèles : `verbose_name`/`help_text` en français → quelques lignes > 100 car. assumées.
 "*/models.py" = ["E501"]
-# Commandes de gestion : messages console multilignes.
-"core/management/commands/*.py" = ["E501"]
+# Commandes de gestion : messages console multilignes, helper `P()`, `User = get_user_model()`.
+"core/management/commands/*.py" = ["E501", "N802", "N806"]
+# Vue de recherche : descriptions OpenAPI en français un peu longues.
+"search/views.py" = ["E501"]

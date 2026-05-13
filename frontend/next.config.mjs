@@ -4,16 +4,19 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // sortie autonome pour l'image Docker (`node server.js`)
+  // sortie autonome (utile pour une image Docker ; ignorée par Vercel)
   output: "standalone",
   reactStrictMode: true,
   images: {
-    // Images servies par Wagtail (renditions). Adapter aux hôtes réels en prod.
+    // Images / vidéos servies par Wagtail (renditions) ou par l'ancien site.
     remotePatterns: [
+      { protocol: "https", hostname: "backend.fodecc-vitrine.horus-lab.com" },
+      { protocol: "https", hostname: "fodecc-vitrine.horus-lab.com" },
       { protocol: "https", hostname: "www.fodecc.cm" },
       { protocol: "https", hostname: "fodecc.cm" },
       { protocol: "http", hostname: "localhost" },
       { protocol: "http", hostname: "backend" },
+      { protocol: "http", hostname: "127.0.0.1" },
     ],
   },
 };

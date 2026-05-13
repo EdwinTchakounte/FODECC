@@ -162,3 +162,14 @@ export function mediaUrl(url: string | null | undefined): string | undefined {
   if (url.startsWith("http")) return url;
   return `${PUBLIC_API}${url.startsWith("/") ? "" : "/"}${url}`;
 }
+
+/** Extrait le chemin (sans préfixe de locale) d'une URL absolue Wagtail (`meta.html_url`). */
+export function pathFromHtmlUrl(htmlUrl: string | null | undefined): string {
+  if (!htmlUrl) return "/";
+  try {
+    const u = new URL(htmlUrl);
+    return u.pathname.replace(/^\/(fr|en)(?=\/|$)/, "") || "/";
+  } catch {
+    return htmlUrl.startsWith("/") ? htmlUrl : `/${htmlUrl}`;
+  }
+}

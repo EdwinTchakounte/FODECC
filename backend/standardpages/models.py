@@ -12,11 +12,11 @@ from django.db import models
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.api import APIField
 from wagtail.fields import StreamField
-from wagtail.images.api.fields import ImageRenditionField
 from wagtail.models import Page
 from wagtail.search import index
 
 from core.blocks import BodyStreamBlock
+from core.imageutils import rendition_url
 
 
 class SEOFieldsMixin(models.Model):
@@ -34,6 +34,10 @@ class SEOFieldsMixin(models.Model):
         FieldPanel("social_image"),
     ]
 
+    @property
+    def social_image_url(self):
+        return rendition_url(self.social_image, "fill-1200x630")
+
     class Meta:
         abstract = True
 
@@ -41,9 +45,14 @@ class SEOFieldsMixin(models.Model):
 class StandardPage(SEOFieldsMixin, Page):
     intro = models.TextField("Chapô / introduction", blank=True)
     header_image = models.ForeignKey(
-        "wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+        "wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+",
+        verbose_name="Image d'en-tête",
     )
     body = StreamField(BodyStreamBlock(), blank=True, use_json_field=True, verbose_name="Contenu")
+
+    @property
+    def header_image_url(self):
+        return rendition_url(self.header_image, "fill-1920x720")
 
     search_fields = Page.search_fields + [
         index.SearchField("intro"),
@@ -61,10 +70,10 @@ class StandardPage(SEOFieldsMixin, Page):
 
     api_fields = [
         APIField("intro"),
-        APIField("header_image", serializer=ImageRenditionField("fill-1600x500")),
+        APIField("header_image_url"),
         APIField("body"),
         APIField("search_description_long"),
-        APIField("social_image", serializer=ImageRenditionField("fill-1200x630")),
+        APIField("social_image_url"),
         APIField("locale"),
     ]
 
@@ -78,8 +87,13 @@ class IndexPage(SEOFieldsMixin, Page):
     """Page de rubrique : intro + liste de ses enfants (rendue par le front)."""
     intro = models.TextField("Introduction de la rubrique", blank=True)
     header_image = models.ForeignKey(
-        "wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+        "wagtailimages.Image", null=True, blank=True, on_delete=models.SET_NULL, related_name="+",
+        verbose_name="Image d'en-tête",
     )
+
+    @property
+    def header_image_url(self):
+        return rendition_url(self.header_image, "fill-1920x720")
 
     content_panels = Page.content_panels + [
         FieldPanel("header_image"),
@@ -91,9 +105,9 @@ class IndexPage(SEOFieldsMixin, Page):
 
     api_fields = [
         APIField("intro"),
-        APIField("header_image", serializer=ImageRenditionField("fill-1600x500")),
+        APIField("header_image_url"),
         APIField("search_description_long"),
-        APIField("social_image", serializer=ImageRenditionField("fill-1200x630")),
+        APIField("social_image_url"),
         APIField("locale"),
     ]
 

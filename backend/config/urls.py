@@ -1,7 +1,14 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.db import connection
+from django.http import JsonResponse
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps.views import sitemap
@@ -11,7 +18,20 @@ from search.views import search_api
 
 from .api import api_router
 
+
+def healthz(_request):
+    """Sonde de santé : 200 si l'app répond et que la base est joignable."""
+    try:
+        with connection.cursor() as cur:
+            cur.execute("SELECT 1")
+        return JsonResponse({"status": "ok"})
+    except Exception as exc:  # pragma: no cover
+        return JsonResponse({"status": "error", "detail": str(exc)}, status=503)
+
+
 urlpatterns = [
+    # Sonde de santé (pour Nginx / supervision)
+    path("healthz/", healthz, name="healthz"),
     # Django admin (gestion bas niveau)
     path("django-admin/", admin.site.urls),
     # Admin du CMS Wagtail (rédacteurs)
@@ -22,6 +42,10 @@ urlpatterns = [
     path("api/v2/", api_router.urls),
     # Recherche JSON (consommée par Next)
     path("api/search/", search_api, name="search_api"),
+    # Documentation de l'API (OpenAPI / Swagger UI / Redoc)
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # Sitemap (utile pour le référencement, complète celui de Next)
     path("sitemap.xml", sitemap),
 ]

@@ -1,73 +1,73 @@
 # Refonte fodecc.cm — Next.js + Wagtail (headless)
 
-Refonte du site institutionnel du **FODECC** (Fonds de Développement des Filières Cacao et Café, Cameroun).
+Refonte du site institutionnel du **FODECC** (Fonds de Développement des Filières Cacao et Café, Cameroun) — inspiration éditoriale type **UNESCO / IFAD / PAM** : grandes images, typo serif + sans, formes organiques, pleine largeur d'écran, animations sobres.
 
-- **Backend / CMS** : [Wagtail](https://wagtail.org/) (Django) en mode *headless* — expose les pages et contenus via l'API v2.
-- **Frontend** : [Next.js](https://nextjs.org/) (App Router, TypeScript, Tailwind) — rend tout le site, SSG/ISR, prévisualisation des brouillons.
-- **Bilingue FR / EN** : `wagtail-localize` côté CMS + routing `/[locale]/...` (`next-intl`) côté front.
-- **Déploiement** : on‑premise / Cameroun via `docker compose` (PostgreSQL + Gunicorn + Next.js + Nginx).
-- **Migration** : `scripts/migrate_content.py` importe les 136 articles + médias depuis `../01-audit-site-existant`.
+- **Backend / CMS** : [Wagtail](https://wagtail.org/) (Django) en mode *headless* — API v2 + recherche + **Swagger/OpenAPI**. Deps avec **`uv`**. Package settings : `config/` (`config.settings.{base,dev,prod}`).
+- **Frontend** : [Next.js](https://nextjs.org/) (App Router, TypeScript, Tailwind) — SSG/ISR, bilingue FR/EN (`next-intl`), prévisualisation des brouillons (Draft Mode), polices *Fraunces* (display) + *Plus Jakarta Sans* (texte).
+- **Déploiement** : backend sur **VPS Contabo** (`docker compose` : PostgreSQL + Gunicorn + Nginx + Certbot), CI/CD **GitHub Actions** (`backend.yml` : lint → check → deploy SSH). Frontend sur **Vercel**.
+- **Contenu** : 136 articles importés depuis l'ancien site (`scripts/migrate_content.py`) + pages institutionnelles, mot de l'Administrateur et documents (rapports d'activités, dépliants, press book) créés par `manage.py bootstrap_demo`.
 
 ```
 02-refonte-fodecc/
-├── backend/        # Wagtail (Django)
-├── frontend/       # Next.js (App Router)
-├── scripts/        # migration de contenu depuis l'ancien site
-├── deploy/         # nginx, configs de déploiement
-├── docs/           # architecture, modèle de contenu, arborescence cible
-├── docker-compose.yml
-└── .env.example
+├── Makefile                    # raccourcis de dev (make setup / make backend / make frontend …)
+├── backend/                    # Wagtail (Django) — pyproject.toml/uv.lock, config/, apps, deploy/, docker-compose.prod.yml
+├── frontend/                   # Next.js (App Router) — déployé sur Vercel
+├── scripts/migrate_content.py  # migration de contenu depuis ../01-audit-site-existant
+├── docs/                       # architecture, modèle de contenu, arborescence cible
+└── .github/workflows/          # backend.yml (CI/CD) · frontend.yml (CI)
 ```
 
-## Démarrage rapide (développement)
+---
+
+## Lancer le projet en local
+
+### Option A — Docker Compose (tout-en-un, recommandé)
 
 ```bash
-cp .env.example .env
-
-# --- Backend ---
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py makemigrations           # génère les migrations des apps du projet
-python manage.py migrate
-python manage.py bootstrap_site           # crée locales FR/EN + HomePage + index de base
-python manage.py createsuperuser
-python manage.py runserver 0.0.0.0:8000
-#  → admin Wagtail : http://localhost:8000/cms/
-#  → API v2        : http://localhost:8000/api/v2/pages/
-
-# --- Frontend ---
-cd ../frontend
-npm install
-cp .env.local.example .env.local   # pointe NEXT_PUBLIC_WAGTAIL_API_URL vers http://localhost:8000
-npm run dev
-#  → site : http://localhost:3000/fr
+docker compose up --build       # (ou : make up)
 ```
 
-## Démarrage via Docker (cible on‑prem)
+C'est tout. La 1re fois prend ~1 min (`uv sync` + `npm install`) ; le backend applique migrations + bootstrap + contenu de démo et **crée le compte admin automatiquement**. Ensuite :
+
+| À tester | URL | Connexion |
+|---|---|---|
+| **CMS Wagtail** (admin) | http://localhost:8000/cms/ | **`admin` / `admin`** |
+| **Swagger / doc de l'API** | http://localhost:8000/api/docs/ | — (Redoc : `/api/redoc/`, schéma : `/api/schema/`) |
+| **API headless v2** (navigable) | http://localhost:8000/api/v2/pages/ | — |
+| **Vitrine Next.js** | http://localhost:3000/fr | — (et `/en`) |
+| Sonde de santé | http://localhost:8000/healthz/ | — |
+
+Importer les 136 articles de l'ancien site (optionnel) :
+```bash
+docker compose exec backend uv run python /app/scripts/migrate_content.py --source /audit --apply
+```
+Arrêter : `docker compose down` (la base est conservée dans un volume).
+
+### Option B — Dev natif (uv + npm, hot-reload)
 
 ```bash
-cp .env.example .env       # éditer les secrets / hôtes
-docker compose up --build
-#  → site public : http://localhost  (nginx → next)
-#  → admin CMS   : http://localhost/cms/  (nginx → wagtail)
+make setup        # uv sync + npm install + migrations + bootstrap + contenu de démo + compte admin/admin
+# puis, dans deux terminaux :
+make backend      # → http://localhost:8000   (CMS + API + Swagger)
+make frontend     # → http://localhost:3000   (vitrine)
+make migrate-articles   # (optionnel) importe les 136 articles de l'ancien site
 ```
 
-## Migration du contenu existant
+Compte CMS : **`admin` / `admin`** (créé par `make setup` ; pour un vrai compte personnel : `make superuser`).
+Sans `make` : `cd backend && uv sync && uv run python manage.py migrate && uv run python manage.py bootstrap_site --hostname localhost --port 8000 && uv run python manage.py bootstrap_demo && uv run python manage.py create_dev_superuser && uv run python manage.py runserver 0.0.0.0:8000` puis, dans un autre terminal, `cd frontend && npm install && cp .env.local.example .env.local && npm run dev`.
+
+> En dev natif, `config.settings.dev` utilise **SQLite** (zéro config). Le Docker Compose utilise **PostgreSQL** (`config.settings.docker`), au plus proche de la prod. La prod utilise `config.settings.prod` (cf. `backend/docker-compose.prod.yml`).
+
+## Qualité
 
 ```bash
-# 1. initialiser l'arborescence de base (locales FR/EN, HomePage, index Actualités/Transparence)
-docker compose run --rm backend python manage.py bootstrap_site --hostname fodecc.cm --port 80
-
-# 2. simuler la migration des 136 articles
-docker compose run --rm backend python scripts/migrate_content.py --source /audit
-
-# 3. migrer pour de vrai (avec les images à la une)
-docker compose run --rm backend python scripts/migrate_content.py --source /audit --apply --with-images
+make lint     # ruff (backend) + eslint + tsc (frontend)
+make check    # manage.py check + next build
 ```
 
-En local (hors Docker) : `python manage.py bootstrap_site` puis
-`DJANGO_SETTINGS_MODULE=fodecc.settings.dev python scripts/migrate_content.py --source ../01-audit-site-existant --apply`.
+## Déploiement
 
-Voir [`docs/`](docs/) pour l'architecture détaillée, le modèle de contenu et l'arborescence cible.
-# FODECC
+- **Backend → Contabo** : procédure complète dans [`backend/deploy/server-setup.md`](backend/deploy/server-setup.md) (provisioning VPS, DNS chez LWS, `.env`, certificats Let's Encrypt, premier déploiement). Ensuite chaque push sur `main` touchant `backend/**` déclenche `.github/workflows/backend.yml` (lint → check → déploiement SSH). Domaine : `backend.fodecc-vitrine.horus-lab.com` (CMS + API).
+- **Frontend → Vercel** : connecter le dépôt à Vercel (racine `frontend/`), variables `WAGTAIL_API_URL` / `NEXT_PUBLIC_WAGTAIL_API_URL` = URL du backend, `NEXT_PUBLIC_SITE_URL` = `https://fodecc-vitrine.horus-lab.com`, `REVALIDATE_SECRET` = même secret que le backend. Domaine : `fodecc-vitrine.horus-lab.com`.
+
+Voir aussi [`docs/`](docs/) : architecture, modèle de contenu, arborescence cible.
